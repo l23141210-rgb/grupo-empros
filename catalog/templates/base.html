@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Catalogo | Grupo Empros{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/catalog.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <a href="{{ url_for('inicio') }}" class="brand">
+            <div class="brand-logo">GE</div>
+            <div>
+                <h1>GRUPO EMPROS</h1>
+                <small>Materiales e inventarios</small>
+            </div>
+        </a>
+        <nav class="nav-links">
+            <a href="{{ url_for('inicio') }}">Catalogo</a>
+            <a href="{{ url_for('contacto') }}">Contacto</a>
+            <a href="{{ whatsapp_url if whatsapp_url is defined else '#' }}" class="btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+        </nav>
+    </div>
+</header>
+{% block content %}{% endblock %}
+<footer class="footer">
+    <p>Grupo Empros — Catalogo publico de materiales</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Panel | GRUPO EMPROS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Panel principal</h1>
+        <p>Resumen de la semana en curso</p>
+    </div>
+    {% if rol == 'administrador' %}
+    <a href="{{ url_for('nuevo_movimiento') }}" class="btn btn-primary">＋ Registrar movimiento</a>
+    {% endif %}
+</div>
+
+<div class="cards-grid">
+    <div class="card-stat">
+        <div class="label">Piezas en stock</div>
+        <div class="value">{{ "{:,}".format(resumen.total_piezas) }}</div>
+    </div>
+    <div class="card-stat">
+        <div class="label">Productos activos</div>
+        <div class="value">{{ resumen.total_productos }}</div>
+    </div>
+    <div class="card-stat">
+        <div class="label">Entradas (semana)</div>
+        <div class="value verde">+{{ resumen.entradas }}</div>
+    </div>
+    <div class="card-stat">
+        <div class="label">Salidas (semana)</div>
+        <div class="value rojo">−{{ resumen.salidas }}</div>
+    </div>
+    <div class="card-stat">
+        <div class="label">Vendidas (web)</div>
+        <div class="value">{{ resumen.vendidas }}</div>
+    </div>
+    <div class="card-stat">
+        <div class="label">Bajo mínimo</div>
+        <div class="value {% if resumen.bajo_minimo > 0 %}naranja{% endif %}">{{ resumen.bajo_minimo }}</div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+    <div class="panel">
+        <div class="panel-header">
+            <h3>Últimos movimientos</h3>
+            <a href="{{ url_for('estadisticas') }}" class="btn btn-secondary btn-sm">Ver todos</a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Fecha</th><th>Tipo</th><th>Producto</th><th>Cant.</th></tr>
+                </thead>
+                <tbody>
+                {% for m in movimientos %}
+                    <tr>
+                        <td>{{ m.fecha.strftime('%d/%m %H:%M') if m.fecha else '—' }}</td>
+                        <td><span class="badge badge-{{ m.tipo }}">{{ m.tipo }}</span></td>
+                        <td>{{ (m.descripcion or '')[:35] }}</td>
+                        <td>{{ m.cantidad }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="empty">Sin movimientos recientes</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <h3>Productos bajo mínimo</h3>
+            <a href="{{ url_for('estadisticas') }}" class="btn btn-secondary btn-sm">Ver todos</a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Código</th><th>Descripción</th><th>Stock</th><th>Mín</th></tr>
+                </thead>
+                <tbody>
+                {% for p in bajo_minimo %}
+                    <tr>
+                        <td>{{ p.codigo }}</td>
+                        <td>{{ (p.descripcion or '')[:30] }}</td>
+                        <td><span class="badge badge-bajo">{{ p.stock_actual }}</span></td>
+                        <td>{{ p.stock_minimo }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="empty">Todo en orden ✓</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
