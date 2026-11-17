@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}GRUPO EMPROS{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="marca">
+            <div class="logo">GE</div>
+            <div>
+                <h2>GRUPO EMPROS</h2>
+                <small>Gestión de Inventarios</small>
+            </div>
+        </div>
+
+        <div class="menu-titulo">MENÚ PRINCIPAL</div>
+        <nav>
+            <a href="{{ url_for('inicio') }}" class="{% if request.endpoint == 'inicio' %}activo{% endif %}">
+                <span>▦</span> Panel principal
+            </a>
+            <a href="{{ url_for('inventario') }}" class="{% if request.endpoint == 'inventario' %}activo{% endif %}">
+                <span>▣</span> Inventario
+            </a>
+            <a href="{{ url_for('estadisticas') }}" class="{% if request.endpoint == 'estadisticas' %}activo{% endif %}">
+                <span>◉</span> Estadísticas
+            </a>
+            <a href="{{ url_for('reportes') }}" class="{% if request.endpoint == 'reportes' %}activo{% endif %}">
+                <span>📄</span> Reportes PDF
+            </a>
+
+            {% if rol == 'administrador' %}
+            <div class="menu-titulo" style="margin-top:18px">ADMINISTRACIÓN</div>
+            <a href="{{ url_for('nuevo_movimiento') }}" class="{% if request.endpoint == 'nuevo_movimiento' %}activo{% endif %}">
+                <span>⇄</span> Registrar movimiento
+            </a>
+            <a href="{{ url_for('nuevo_producto') }}" class="{% if request.endpoint == 'nuevo_producto' %}activo{% endif %}">
+                <span>＋</span> Nuevo producto
+            </a>
+            <a href="{{ url_for('empleados') }}" class="{% if request.endpoint in ['empleados','nuevo_empleado'] %}activo{% endif %}">
+                <span>👤</span> Empleados
+            </a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <strong>{{ nombre or 'Usuario' }}</strong>
+                <small>{{ rol or '' }}</small>
+            </div>
+            <form method="POST" action="{{ url_for('logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-logout">Cerrar sesión</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="contenido">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

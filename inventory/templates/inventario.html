@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Inventario | GRUPO EMPROS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Inventario</h1>
+        <p>{{ total }} productos encontrados</p>
+    </div>
+    {% if rol == 'administrador' %}
+    <a href="{{ url_for('nuevo_producto') }}" class="btn btn-primary">＋ Nuevo producto</a>
+    {% endif %}
+</div>
+
+<form class="search-bar" method="GET">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar código o descripción...">
+    <select name="categoria">
+        <option value="">Todas las categorías</option>
+        {% for c in categorias %}
+        <option value="{{ c }}" {% if c == categoria_sel %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary">Buscar</button>
+</form>
+
+<div class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                    <th>Mín / Máx</th>
+                    <th>Precio</th>
+                    <th>Almacén</th>
+                    {% if rol == 'administrador' %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for p in productos %}
+                <tr>
+                    <td><strong>{{ p.codigo }}</strong></td>
+                    <td>{{ p.descripcion }}</td>
+                    <td>{{ p.categoria or '—' }}</td>
+                    <td>
+                        {% if p.stock_actual < p.stock_minimo %}
+                            <span class="badge badge-bajo">{{ p.stock_actual }}</span>
+                        {% else %}
+                            {{ p.stock_actual }}
+                        {% endif %}
+                    </td>
+                    <td>{{ p.stock_minimo }} / {{ p.stock_maximo }}</td>
+                    <td>{% if p.precio_venta %}${{ '%.2f'|format(p.precio_venta) }}{% else %}—{% endif %}</td>
+                    <td>{{ p.almacen or '—' }}</td>
+                    {% if rol == 'administrador' %}
+                    <td>
+                        <a href="{{ url_for('editar_producto', producto_id=p.id) }}" class="btn btn-secondary btn-sm">Editar</a>
+                    </td>
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr><td colspan="8" class="empty">No hay productos</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_paginas > 1 %}
+    <div class="paginacion">
+        {% if pagina > 1 %}
+        <a href="?pagina={{ pagina-1 }}&q={{ busqueda }}&categoria={{ categoria_sel }}">←</a>
+        {% endif %}
+        <span class="actual">{{ pagina }} / {{ total_paginas }}</span>
+        {% if pagina < total_paginas %}
+        <a href="?pagina={{ pagina+1 }}&q={{ busqueda }}&categoria={{ categoria_sel }}">→</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

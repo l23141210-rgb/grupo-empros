@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.descripcion }} | Grupo Empros{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:40px;">
+    <div class="detalle-wrap">
+        {% if producto.categoria %}<div class="detalle-cat">{{ producto.categoria }}</div>{% endif %}
+        <h1>{{ producto.descripcion }}</h1>
+        <div class="detalle-code">Codigo: {{ producto.codigo }}</div>
+        <div class="detalle-price">
+            {% if producto.precio_venta and producto.precio_venta > 0 %}${{ "%.2f"|format(producto.precio_venta) }}{% else %}Precio a consultar{% endif %}
+        </div>
+        <div class="detalle-meta">
+            <div><strong>Disponibilidad</strong>{{ producto.stock_actual }}{% if producto.unidad %} {{ producto.unidad }}{% endif %}</div>
+            {% if producto.almacen %}<div><strong>Almacen</strong>{{ producto.almacen }}</div>{% endif %}
+        </div>
+        <div class="detalle-actions">
+            <a href="{{ whatsapp_url }}" class="btn btn-wa" target="_blank" rel="noopener">Cotizar por WhatsApp</a>
+            <a href="{{ url_for('inicio') }}" class="btn btn-outline">Volver al catalogo</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: empros_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\" || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  inventory:
+    build:
+      context: ./inventory
+      dockerfile: Dockerfile
+    container_name: empros_inventory
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SECRET_KEY: ${SECRET_KEY}
+      FLASK_ENV: development
+    volumes:
+      - ./inventory:/app
+      - pdf_reports:/app/reports
+    depends_on:
+      db:
+        condition: service_healthy
+
+  catalog:
+    build:
+      context: ./catalog
+      dockerfile: Dockerfile
+    container_name: empros_catalog
+    restart: unless-stopped
+    ports:
+      - "5004:5002"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      WHATSAPP_NUMERO: ${WHATSAPP_NUMERO}
+      WHATSAPP_MENSAJE: ${WHATSAPP_MENSAJE}
+    volumes:
+      - ./catalog:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  pdf_reports:
